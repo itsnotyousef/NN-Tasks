@@ -9,9 +9,9 @@ from sklearn.preprocessing import LabelEncoder
 df = pd.read_csv('Birds.csv')
 
 #  encoding gender coulmn
-encoder = TargetEncoder(cols=['gender'])
+le = LabelEncoder()
+df['gender'] = le.fit_transform((df['gender']))
 print(df['gender'])
-
 cdf = df[['gender','body_mass','beak_length','beak_depth','fin_length']]
 
 # define classes belongs to a,b,c which is defined targets
@@ -30,13 +30,13 @@ feature3 = df.iloc[101:151,:]
 
 # define masks to generate 30 sample of each class for training and 20 samples for testing
 
-msk1 = np.random.rand(len(feature1)) < 0.6
+msk1 = np.random.rand(len(class1)) < 0.6
 msk2 = np.random.rand(len(feature2)) < 0.6
 msk3 = np.random.rand(len(feature3)) < 0.6
 
 # train test split
 
-train_class1 = cdf[msk1]
+train_class1 = df[msk1]
 test_class1 =  df[~msk1]
 train_class2 = df[msk2]
 test_class2 =  df[~msk2]
@@ -48,9 +48,12 @@ test_class3 =  df[~msk3]
 
 train_x = np.concatenate(train_class1,train_class2,test_class3)
 test_x = np.concatenate(test_class1,test_class2,test_class3)
+# to be determinte
+# train y
+# test y
 
 
-print(train_x)
+
 
 
 
