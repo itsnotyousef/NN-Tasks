@@ -1,60 +1,51 @@
-import ast
-
-import numpy as np
-import matplotlib as plt
 import pandas as pd
-from category_encoders import TargetEncoder
+import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
+# Load the dataset
 df = pd.read_csv('Birds.csv')
 
-#  encoding gender coulmn
+# Encoding the gender column
 le = LabelEncoder()
-df['gender'] = le.fit_transform((df['gender']))
-print(df['gender'])
-cdf = df[['gender','body_mass','beak_length','beak_depth','fin_length']]
+df['gender'] = le.fit_transform(df['gender'])
 
-# define classes belongs to a,b,c which is defined targets
+# Extract relevant features
+cdf = df[['gender', 'body_mass', 'beak_length', 'beak_depth', 'fin_length']]
 
-class1 = df.iloc[:50,-1:]
-class2 = df.iloc[51:100,-1:]
-class3 = df.iloc[101:151,-1:]
+# Define classes
+class1 = df.iloc[:50]
+class2 = df.iloc[50:100]
+class3 = df.iloc[100:150]
 
+print(class1)
 
-# Extracting featuers
-
-feature1 = df.iloc[:50,:]
-feature2 = df.iloc[51:100,:]
-feature3 = df.iloc[101:151,:]
-
-
-# define masks to generate 30 sample of each class for training and 20 samples for testing
-
+# Define masks to generate 30 samples of each class for training and 20 samples for testing
 msk1 = np.random.rand(len(class1)) < 0.6
-msk2 = np.random.rand(len(feature2)) < 0.6
-msk3 = np.random.rand(len(feature3)) < 0.6
+msk2 = np.random.rand(len(class2)) < 0.6
+msk3 = np.random.rand(len(class3)) < 0.6
 
-# train test split
+# Train-test split
+train_class1 = class1[msk1]
+test_class1 = class1[~msk1]
+train_class2 = class2[msk2]
+test_class2 = class2[~msk2]
+train_class3 = class3[msk3]
+test_class3 = class3[~msk3]
 
-train_class1 = df[msk1]
-test_class1 =  df[~msk1]
-train_class2 = df[msk2]
-test_class2 =  df[~msk2]
-train_class3 = df[msk3]
-test_class3 =  df[~msk3]
+# Concatenate training data and testing data
+train_x = pd.concat([train_class1, train_class2, train_class3]).reset_index(drop=True)
+test_x = pd.concat([test_class1, test_class2, test_class3]).reset_index(drop=True)
 
+# Prepare training and testing labels
+train_y = train_x['bird category']
+test_y = test_x['bird category']
 
-# concatenate the train data and test data to train and test model
+# Drop the label from feature data
+train_x = train_x.drop(columns=['gender'])
+test_x = test_x.drop(columns=['gender'])
 
-train_x = np.concatenate(train_class1,train_class2,test_class3)
-test_x = np.concatenate(test_class1,test_class2,test_class3)
-# to be determinte
-# train y
-# test y
-
-
-
-
-
-
+# print("Training features:\n", train_x.head())
+# print("Training labels:\n", train_y.head())
+# print("Testing features:\n", test_x.head())
+# print("Testing labels:\n", test_y.head())
 
