@@ -1,3 +1,5 @@
+import random
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
@@ -8,6 +10,8 @@ df = pd.read_csv('Birds.csv')
 # Encoding the gender column
 le = LabelEncoder()
 df['gender'] = le.fit_transform(df['gender'])
+df['bird category'] = le.fit_transform(df['bird category'])
+print(df['bird category'].head(10))
 
 # Extract relevant features
 cdf = df[['gender', 'body_mass', 'beak_length', 'beak_depth', 'fin_length']]
@@ -17,7 +21,7 @@ class1 = df.iloc[:50]
 class2 = df.iloc[50:100]
 class3 = df.iloc[100:150]
 
-print(class1)
+# print(class1)
 
 # Define masks to generate 30 samples of each class for training and 20 samples for testing
 msk1 = np.random.rand(len(class1)) < 0.6
@@ -41,11 +45,42 @@ train_y = train_x['bird category']
 test_y = test_x['bird category']
 
 # Drop the label from feature data
-train_x = train_x.drop(columns=['gender'])
-test_x = test_x.drop(columns=['gender'])
+train_x = train_x.drop(columns=['bird category'])
+test_x = test_x.drop(columns=['bird category'])
 
-# print("Training features:\n", train_x.head())
-# print("Training labels:\n", train_y.head())
-# print("Testing features:\n", test_x.head())
-# print("Testing labels:\n", test_y.head())
+print("Training features:\n", train_x.head())
+print("Training labels:\n", train_y.head())
+print("Testing features:\n", test_x.head())
+print("Testing labels:\n", test_y.head())
+
+
+# implement the required function that will use in perceptron algorithm
+
+# 1 - calculate net value which represent linear combination between inputs and weights
+def calculateNetValue(inputs, weights, bias):
+    if bias == 0:
+        return np.sum(inputs * weights)
+    else:
+        x = random.uniform(-1, 1)
+        bias = x
+        return np.sum(inputs * weights) + bias
+
+
+# 2 - activation function that receive z = linear combination between inputs and weights
+def signum(z):
+    if float(z) >= 0:
+        return 1
+    else:
+        return -1
+
+
+# 3 - calculate error between t => what actually the output should look like - y=> what output I get (output of act fn)
+def calculateError(t, y):
+    return t - y
+
+
+# 4 - update weight if needed
+def updateWeight(weights, learningRate, t, y, input):
+    error = calculateError(t, y)
+    return weights + (learningRate * error * input)
 
