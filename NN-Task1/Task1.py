@@ -80,7 +80,23 @@ def calculateError(t, y):
 
 
 # 4 - update weight if needed
-def updateWeight(weights, learningRate, t, y, input):
-    error = calculateError(t, y)
+def updateWeight(weights, learningRate, error, input):
     return weights + (learningRate * error * input)
+
+# combine all functions to implement single layer preceptron algorithm
+
+def singelLayerPreceptron(input, output, weights , learningRate, epochs, bias=0):
+    for epoch in range(epochs):
+        for i in range(input):
+            z = calculateNetValue(input, weights, bias)
+            y = signum(z)
+            error = calculateError(output - y)
+
+            if error == 0:
+                continue
+            else:
+                weights = updateWeight(weights, learningRate, error, input)
+
+
+
 
