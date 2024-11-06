@@ -3,15 +3,15 @@ import random
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
-
+from sklearn.metrics import confusion_matrix, accuracy_score
 # Load the dataset
 df = pd.read_csv('Birds.csv')
-
+df['gender'] = df['gender'].fillna(df['gender'].mode()[0])
 # Encoding the gender column
 le = LabelEncoder()
 df['gender'] = le.fit_transform(df['gender'])
 df['bird category'] = le.fit_transform(df['bird category'])
-print(df['bird category'].head(10))
+# print(df['bird category'].head(10))
 
 # Extract relevant features
 cdf = df[['gender', 'body_mass', 'beak_length', 'beak_depth', 'fin_length']]
@@ -24,9 +24,11 @@ class3 = df.iloc[100:150]
 # print(class1)
 
 # Define masks to generate 30 samples of each class for training and 20 samples for testing
-msk1 = np.random.rand(len(class1)) < 0.6
-msk2 = np.random.rand(len(class2)) < 0.6
-msk3 = np.random.rand(len(class3)) < 0.6
+msk1 = np.random.rand(len(class1)) <= 0.6
+msk2 = np.random.rand(len(class2)) <= 0.6
+msk3 = np.random.rand(len(class3)) <= 0.6
+
+
 
 # Train-test split
 train_class1 = class1[msk1]
@@ -48,10 +50,15 @@ test_y = test_x['bird category']
 train_x = train_x.drop(columns=['bird category'])
 test_x = test_x.drop(columns=['bird category'])
 
-print("Training features:\n", train_x.head())
-print("Training labels:\n", train_y.head())
-print("Testing features:\n", test_x.head())
-print("Testing labels:\n", test_y.head())
+# print("Training features:\n", train_x.head())
+# print("Training labels:\n", train_y.head())
+# print("Testing features:\n", test_x.head())
+# print("Testing labels:\n", test_y.head())
+
+
+
+
+
 
 
 # implement the required function that will use in perceptron algorithm
@@ -68,7 +75,7 @@ def calculateNetValue(inputs, weights, bias):
 
 # 2 - activation function that receive z = linear combination between inputs and weights
 def signum(z):
-    if float(z) >= 0:
+    if z >= 0:
         return 1
     else:
         return -1
@@ -87,16 +94,43 @@ def updateWeight(weights, learningRate, error, input):
 
 def singelLayerPreceptron(input, output, weights , learningRate, epochs, bias=0):
     for epoch in range(epochs):
-        for i in range(input):
-            z = calculateNetValue(input, weights, bias)
+        for i in range(len(input)):
+            z = calculateNetValue(input.iloc[i], weights, bias)
             y = signum(z)
-            error = calculateError(output - y)
+            error = calculateError(output.iloc[i], y)
 
             if error == 0:
                 continue
-            else:
-                weights = updateWeight(weights, learningRate, error, input)
+
+            weights = updateWeight(weights, learningRate, error, input.iloc[i])
+    return weights
 
 
+# train the model
 
+
+# Initialize weights and bias
+weights = np.random.rand(train_x.shape[1])
+learning_rate = 0.01
+epochs = 500
+
+singelLayerPreceptron(train_x,train_y,weights,learning_rate,epochs)
+
+def tetsing(test_x, weights):
+    predictions = []
+    for i in range(len(test_x)):
+        z = calculateNetValue(test_x.iloc[i], weights, 0)  # No bias in this case
+        y_pred = signum(z)
+        predictions.append(y_pred)
+    return predictions
+
+# Get predictions
+predictions = tetsing(test_x, weights)
+
+# Calculate confusion matrix and accuracy
+conf_matrix = confusion_matrix(test_y, predictions)
+accuracy = accuracy_score(test_y, predictions)
+
+print("Confusion Matrix:\n", conf_matrix)
+print("Model Accuracy:", accuracy)
 
